@@ -1,0 +1,48 @@
+MATCH (n) DETACH DELETE n
+
+CREATE (genre1:Genre {name:"Genre1"}),(genre2:Genre {name:"genre2"}),(genre3:Genre {name:"Genre3"})
+CREATE (author1:Author {name:"Author1"}),(author2:Author {name:"Author2"}),(author3:Author {name:"Author3"})
+CREATE (book1:Book {title:"Book1"}),(book2:Book {title:"Book2"}),(book3:Book {title:"Book3"})
+CREATE (person1:Person {name:"Person1"}),(person2:Person {name:"Person2"}),(person3:Person {name:"Person3"})
+
+MATCH
+  (a:Author),
+  (b:Book)
+WHERE a.name = 'Author1' and b.title = 'Book1'
+CREATE (a)-[:AUTHOR_OF]->(b)
+
+MATCH
+  (a:Author),
+  (b:Book)
+WHERE a.name = 'Author2' and b.title = 'Book2'
+CREATE (a)-[:AUTHOR_OF]->(b)
+
+MATCH
+  (a:Author),
+  (b:Book)
+WHERE a.name = 'Author2' and b.title = 'Book1'
+CREATE (a)-[:AUTHOR_OF]->(b)
+
+MATCH
+  (g:Genre),
+  (b:Book)
+WHERE g.name = 'Genre1' and b.title = 'Book1'
+CREATE (g)-[:GENRE_OF]->(b)
+
+MATCH
+  (g:Genre),
+  (b:Book)
+WHERE g.name = 'Genre2' and b.title = 'Book2'
+CREATE (g)-[:GENRE_OF]->(b)
+
+MATCH
+  (g:Genre),
+  (b:Book)
+WHERE g.name = 'Genre1' and b.title = 'Book3'
+CREATE (g)-[:GENRE_OF]->(b)
+
+MATCH
+  (g:Genre),
+  (b:Book)
+WHERE g.name = 'Genre3' and b.title = 'Book3'
+CREATE (g)-[:GENRE_OF]->(b)
