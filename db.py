@@ -11,8 +11,30 @@ class App:
         # Don't forget to close the driver connection when you are finished with it
         self.driver.close()
 
-    def add_book(self, title):
-        
+    def add_book(self, book_name, author_name, genre_name):
+        with self.driver.session(database="neo4j") as session:
+            result = session.execute_write(self._add_and_return_book, book_name, author_name, genre_name)
+            for row in result:
+                print(f'Added book: {row["b"]}, written by: {row["a"]}, with genre: {row["g"]}')
+
+    @staticmethod
+    def _add_and_return_book(tx, book_name, author_name, genre_name):
+        query = (
+            "MERGE (b:Book {name:'$book_name'}) "
+            "MERGE (a:Author {name:'$author_name'}) "
+            "MERGE (g:Genre {name:'$genre_name'}) "
+            "MERGE (a)-[:AUTHOR_OF]->(b)"
+            "MERGE (g)-[:GENRE_OF]->(b)"
+            "RETURN b, a, g"
+        )
+        result = tx.run(query, book_name=book_name, author_name=author_name, genre_name=genre_name)
+        try:
+            return [{"b": row["b"]["name"], "a": row["a"]["name"], "g": row["g"]["name"]} for row in result]
+        except ServiceUnavailable as exception:
+            logging.error("{query} raised an error: \n {exception}".format(
+                query=query, exception=exception))
+            raise
+
 
     def create_friendship(self, person1_name, person2_name):
         with self.driver.session(database="neo4j") as session:
@@ -65,4 +87,5 @@ if __name__ == "__main__":
     user = "neo4j"
     password = "zDVavOL7eo8dt5tJqhMLluXfPkPVP7H-qt0POr8EJcQ"
     app = App(uri, user, password)
+    app.add_book('Book10', 'Author3', 'Genre7')
     app.close()
