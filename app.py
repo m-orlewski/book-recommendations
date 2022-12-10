@@ -48,9 +48,22 @@ def add_book_post():
 @app.route("/listPeople", methods=['GET'])
 def list_people_get():
     header = "Lista Osób"
-    people = db.find_people()
-    print(people)
-    return render_template('list_people.html', data=people, header=header)
+    people = sorted(db.find_people())
+    d = {}
+    
+    for person in people:
+        d[person] = db.find_books_liked_by_person(person)
+
+    table_data = []
+    for k, v in d.items():
+        table_data.append([])
+        table_data[-1].append(k)
+        s = ''
+        for book in v:
+            s += book
+            s += ', '
+        table_data[-1].append(s[:-2])
+    return render_template('list_people.html', data=table_data, header=header)
 
 @app.route("/addPerson", methods=['GET'])
 def add_person_get():

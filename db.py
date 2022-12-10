@@ -137,7 +137,7 @@ class DatabaseApp:
     def _find_and_return_people(tx):
         query = (
             "MATCH "
-            "(p:Person) "
+            "(p:Person)"
             "RETURN p"
         )
         result = tx.run(query)
@@ -168,6 +168,26 @@ class DatabaseApp:
                 query=query, exception=exception))
             raise
 
+    def find_books_liked_by_person(self, person_name):
+        with self.driver.session(database="neo4j") as session:
+            result = session.execute_read(self._find_books_liked_by_person, person_name)
+            print(f'Found books liked by {person_name}: {result}')
+            return result
+    
+    @staticmethod
+    def _find_books_liked_by_person(tx,person_name):
+        query = (
+            "MATCH (p:Person {name: $person_name})-[:LIKED]->(b:Book) "
+            "RETURN b"
+        )
+        result = tx.run(query, person_name=person_name)
+        try:
+            return [row["b"]["name"] for row in result]
+        except ServiceUnavailable as exception:
+            logging.error("{query} raised an error: \n {exception}".format(
+                query=query, exception=exception))
+            raise
+
 
 if __name__ == "__main__":
     uri = "neo4j+s://0a95c956.databases.neo4j.io"
@@ -178,5 +198,6 @@ if __name__ == "__main__":
     #app.find_book('Book1')
     #book_titles = [row[0] for row in app.find_all_books()]
     #print(book_titles)
-    print(app.find_people())
+    #print(app.find_people())
+    app.find_books_liked_by_person('Person1')
     app.close()
