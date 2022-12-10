@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block header %}
+    {{ header }}
+{% endblock %}
+{% block content %}
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+        <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+    
+    <form class="filter-form" method="POST">
+    {% if genres %}
+        <select name="select-genre" id="select-genre" class="form-select">
+            <option selected value="0">Filtruj po gatunku</option>
+            {% for genre in genres %}
+                <option value="{{genre[1]}}">{{genre[1]}}</option>
+            {% endfor %}
+        </select>
+    {% endif %}
+    {% if authors %}
+        <select name="select-author" id="select-author" class="form-select">
+            <option selected value="0">Filtruj po autorze</option>
+            {% for author in authors %}
+                <option value="{{author[1]}} {{author[2]}}">{{author[1]}} {{author[2]}}</option>
+            {% endfor %}
+        </select>
+    {% endif %}
+    <br /><br /><button type="submit" class="btn btn-dark">Filtruj</button>
+    </form>
+
+    {% if data %}
+        <table class="table table-bordered border-success" ><tr style="font-weight: bold; background-color:#ccffcc;">
+        <td>Tytuł</td><td>Autor</td><td>Gatunek</td></tr>
+        {% for row in data %}
+            <tr>
+                <td>{{row[0]}}</td><td>{{row[1]}}</td><td>{{row[2]}}</td>
+            </tr>
+        {% endfor %}
+        </table>
+    {% else %}
+        <div class="alert alert-dark" style="text-align: center;">
+            Brak książek do wyświetlenia.
+        </div>
+    {% endif %}
+{% endblock %}

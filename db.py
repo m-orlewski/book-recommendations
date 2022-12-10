@@ -34,6 +34,7 @@ class DatabaseApp:
                 query=query, exception=exception))
             raise
 
+
     def find_book(self, book_name):
         with self.driver.session(database="neo4j") as session:
             result = session.execute_read(self._find_and_return_book, book_name)
@@ -55,6 +56,41 @@ class DatabaseApp:
                 query=query, exception=exception))
             raise
 
+    def find_all_books(self):
+        with self.driver.session(database="neo4j") as session:
+            result = session.execute_read(self._find_and_return_all_books)
+            grouped = {}
+            for row in result:
+                for k, v in row.items():
+                    if k not in grouped.keys():
+                        grouped[k] = [v[0], v[1]]
+                    else:
+                        if v[0] not in grouped[k][0]:
+                            grouped[k][0] += f', {v[0]}'
+                        elif v[1] not in grouped[k][1]:
+                            grouped[k][1] += f', {v[1]}'
+
+            
+            result = [[k, v[0], v[1]] for k, v in grouped.items()]
+            print(result)
+            return result
+
+    @staticmethod
+    def _find_and_return_all_books(tx):
+        query = (
+            "MATCH "
+            "(g:Genre)--(b:Book)--(a:Author) "
+            "RETURN b, a, g"
+        )
+        result = tx.run(query)
+        try:
+            return [{row["b"]["name"]: [f'{row["a"]["name"]}', f'{row["g"]["name"]}']} for row in result]
+        except ServiceUnavailable as exception:
+            logging.error("{query} raised an error: \n {exception}".format(
+                query=query, exception=exception))
+            raise
+
+
 
 if __name__ == "__main__":
     uri = "neo4j+s://0a95c956.databases.neo4j.io"
@@ -63,4 +99,5 @@ if __name__ == "__main__":
     app = DatabaseApp(uri, user, password)
     #app.add_book('Book10', 'Author3', 'Genre7')
     #app.find_book('Book1')
+    app.find_all_books()
     app.close()
