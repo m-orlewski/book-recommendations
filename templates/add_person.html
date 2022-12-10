@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block header %}
+    {{ header }}
+{% endblock %}
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<form method="POST">
+    <div class="form-group">
+      <label for="person">Osoba</label>
+      <input type="text" class="form-control" id="person" name="person" placeholder="Podaj imię" />
+    </div>
+    <button type="submit" class="btn btn-dark">Dodaj</button>
+  </form>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block header %}
+    {{ header }}
+{% endblock %}
+{% block content %}
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+        <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+    {% if data %}
+        <table class="table table-bordered border-success" ><tr style="font-weight: bold; background-color:#ccffcc;">
+        <td>Imię</td></tr>
+        {% for row in data %}
+            <tr>
+                <td>{{row}}</td>
+            </tr>
+        {% endfor %}
+        </table>
+    {% else %}
+        <div class="alert alert-dark" style="text-align: center;">
+            Brak osób do wyświetlenia.
+        </div>
+    {% endif %}
+{% endblock %}

@@ -126,6 +126,47 @@ class DatabaseApp:
                 query=query, exception=exception))
             raise
 
+    def find_people(self):
+        with self.driver.session(database="neo4j") as session:
+            result = session.execute_read(self._find_and_return_people)
+            for row in result:
+                print(f'Found person: {row}')
+            return result
+
+    @staticmethod
+    def _find_and_return_people(tx):
+        query = (
+            "MATCH "
+            "(p:Person) "
+            "RETURN p"
+        )
+        result = tx.run(query)
+        try:
+            return [row["p"]["name"] for row in result]
+        except ServiceUnavailable as exception:
+            logging.error("{query} raised an error: \n {exception}".format(
+                query=query, exception=exception))
+            raise
+
+    def add_person(self, person_name):
+        with self.driver.session(database="neo4j") as session:
+            result = session.execute_write(self._add_person, person_name)
+            for row in result:
+                print(f'Added person: {row}')
+
+    @staticmethod
+    def _add_person(tx, person_name):
+        query = (
+            "MERGE (p:Person {name: $person_name }) "
+            "RETURN p"
+        )
+        result = tx.run(query, person_name=person_name)
+        try:
+            return [row["p"] for row in result]
+        except ServiceUnavailable as exception:
+            logging.error("{query} raised an error: \n {exception}".format(
+                query=query, exception=exception))
+            raise
 
 
 if __name__ == "__main__":
@@ -135,5 +176,7 @@ if __name__ == "__main__":
     app = DatabaseApp(uri, user, password)
     #app.add_book('Book10', 'Author3', 'Genre7')
     #app.find_book('Book1')
-    app.find_all_books()
+    #book_titles = [row[0] for row in app.find_all_books()]
+    #print(book_titles)
+    print(app.find_people())
     app.close()

@@ -45,5 +45,30 @@ def add_book_post():
     flash('Książka dodana do bazy.')
     return redirect(url_for('list_books_get'))
 
+@app.route("/listPeople", methods=['GET'])
+def list_people_get():
+    header = "Lista Osób"
+    people = db.find_people()
+    print(people)
+    return render_template('list_people.html', data=people, header=header)
+
+@app.route("/addPerson", methods=['GET'])
+def add_person_get():
+    header = "Dodaj Osobę"
+    return render_template('add_person.html', header=header)
+
+@app.route("/addPerson", methods=['POST'])
+def add_person_post():
+
+    person = request.form.get('person')
+    
+    if person == '':
+        flash('Formularz wypełniony niepoprawnie. Podaj imię.')
+        return redirect(url_for('add_person_get'))
+
+    db.add_person(person)
+    flash('Osoba dodana do bazy.')
+    return redirect(url_for('add_person_get'))
+
 if __name__ == '__main__':
     app.run()
