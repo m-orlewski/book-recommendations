@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block header %}
+    {{ header }}
+{% endblock %}
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<form method="POST">
+    <div class="form-group">
+        <label for="select-person">Wybierz Osobę</label>
+        <select name="select-person" id="select-person" class="form-select">
+            {% for person in people %}
+                <option value="{{person}}">{{person}}</option>
+            {% endfor %}
+        </select>
+    </div>
+        <label for="select-book">Wybierz Książkę</label>
+        <select name="select-book" id="select-book" class="form-select">
+            {% for book in books %}
+                <option value="{{book}}">{{book}}</option>
+            {% endfor %}
+        </select>
+    <button type="submit" class="btn btn-dark">Dodaj</button>
+  </form>
+{% endblock %}

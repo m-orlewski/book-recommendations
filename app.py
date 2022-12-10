@@ -21,7 +21,7 @@ def home():
 @app.route("/listBooks", methods=['GET'])
 def list_books_get():
     header = "Lista Książek"
-    table_data = db.find_all_books()
+    table_data = sorted(db.find_all_books(), key=lambda x: x[0])
     return render_template('list_books.html', data=table_data, header=header)
 
 @app.route("/addBook", methods=['GET'])
@@ -59,6 +59,7 @@ def list_people_get():
         table_data.append([])
         table_data[-1].append(k)
         s = ''
+        v.sort()
         for book in v:
             s += book
             s += ', '
@@ -82,6 +83,27 @@ def add_person_post():
     db.add_person(person)
     flash('Osoba dodana do bazy.')
     return redirect(url_for('add_person_get'))
+
+@app.route("/likeBook", methods=['GET'])
+def like_book_get():
+    header = "Polub Książkę"
+    people = sorted(db.find_people())
+    books = sorted([x[0] for x in db.find_all_books()])
+
+    return render_template('like_book.html', people=people, books=books, header=header)
+
+@app.route("/likeBook", methods=['POST'])
+def like_book_post():
+    
+    person = request.form.get('select-person')
+    book = request.form.get('select-book')
+
+
+    db.add_like(person, book)
+    flash('Dodano polubienie do bazy')
+    return redirect(url_for('like_book_get'))
+
+
 
 if __name__ == '__main__':
     app.run()

@@ -188,6 +188,29 @@ class DatabaseApp:
                 query=query, exception=exception))
             raise
 
+    def add_like(self, person_name, book_name):
+        with self.driver.session(database="neo4j") as session:
+            result = session.execute_write(self._add_like, person_name, book_name)
+            for row in result:
+                print(f'Person: {row[0]} liked book: {row[1]}')
+            return result
+
+    @staticmethod
+    def _add_like(tx, person_name, book_name):
+        query = (
+            "MERGE (p:Person {name: $person_name}) "
+            "MERGE (b:Book {name: $book_name}) "
+            "MERGE (p)-[:LIKED]->(b) "
+            "RETURN p, b"
+        )
+        result = tx.run(query, person_name=person_name, book_name=book_name)
+        try:
+            return [[row["p"]["name"], row["b"]["book"]] for row in result]
+        except ServiceUnavailable as exception:
+            logging.error("{query} raised an error: \n {exception}".format(
+                query=query, exception=exception))
+            raise
+
 
 if __name__ == "__main__":
     uri = "neo4j+s://0a95c956.databases.neo4j.io"
