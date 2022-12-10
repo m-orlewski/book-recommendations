@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block header %}
+    {{ header }}
+{% endblock %}
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<form method="POST">
+    <div class="form-group">
+      <label for="title">Tytuł</label>
+      <input type="text" class="form-control" id="title" name="title" placeholder="Podaj tytuł" />
+    </div>
+    <div class="form-group">
+        <label for="author">Autor</label>
+        <input type="text" class="form-control" id="author" name="author" placeholder="Podaj autora(lub autorów, odzdzielonych '/')" />
+    </div>
+    <div class="form-group">
+        <label for="genre">Gatunek</label>
+        <input type="text" class="form-control" id="genre" name="genre" placeholder="Podaj gatunek(lub gatunki, odzdzielone '/')" />
+    </div>
+    <button type="submit" class="btn btn-dark">Dodaj</button>
+  </form>
+{% endblock %}

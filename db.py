@@ -10,11 +10,50 @@ class DatabaseApp:
     def close(self):
         self.driver.close()
 
-    def add_book(self, book_name, author_name, genre_name):
+    def add_book(self, book_name, authors, genres):
         with self.driver.session(database="neo4j") as session:
-            result = session.execute_write(self._add_and_return_book, book_name, author_name, genre_name)
-            for row in result:
-                print(f'Added book: {row["b"]}, written by: {row["a"]}, with genre: {row["g"]}')
+            for author_name in authors:
+                if author_name != '':
+                    result = session.execute_write(self._add_book_with_author, book_name, author_name)
+                    for row in result:
+                        print(f'Added book: {row["b"]}, written by: {row["a"]}')
+            for genre_name in genres:
+                if genre_name != '':
+                    result = session.execute_write(self._add_book_with_genre, book_name, genre_name)
+                    for row in result:
+                        print(f'Added book: {row["b"]}, with genre: {row["g"]}')
+
+    @staticmethod
+    def _add_book_with_author(tx, book_name, author_name):
+        query = (
+            "MERGE (b:Book {name: $book_name }) "
+            "MERGE (a:Author {name: $author_name }) "
+            "MERGE (a)-[:AUTHOR_OF]->(b)"
+            "RETURN b, a"
+        )
+        result = tx.run(query, book_name=book_name, author_name=author_name)
+        try:
+            return [{"b": row["b"]["name"], "a": row["a"]["name"]} for row in result]
+        except ServiceUnavailable as exception:
+            logging.error("{query} raised an error: \n {exception}".format(
+                query=query, exception=exception))
+            raise
+
+    @staticmethod
+    def _add_book_with_genre(tx, book_name, genre_name):
+        query = (
+            "MERGE (b:Book {name: $book_name }) "
+            "MERGE (g:Genre {name: $genre_name }) "
+            "MERGE (g)-[:GENRE_OF]->(b)"
+            "RETURN b, g"
+        )
+        result = tx.run(query, book_name=book_name, genre_name=genre_name)
+        try:
+            return [{"b": row["b"]["name"], "g": row["g"]["name"]} for row in result]
+        except ServiceUnavailable as exception:
+            logging.error("{query} raised an error: \n {exception}".format(
+                query=query, exception=exception))
+            raise
 
     @staticmethod
     def _add_and_return_book(tx, book_name, author_name, genre_name):
@@ -58,7 +97,7 @@ class DatabaseApp:
 
     def find_all_books(self):
         with self.driver.session(database="neo4j") as session:
-            result = session.execute_read(self._find_and_return_all_books)
+            result = session.execute_read(self._find_and_return_all_books)     
             grouped = {}
             for row in result:
                 for k, v in row.items():
@@ -69,10 +108,7 @@ class DatabaseApp:
                             grouped[k][0] += f', {v[0]}'
                         elif v[1] not in grouped[k][1]:
                             grouped[k][1] += f', {v[1]}'
-
-            
             result = [[k, v[0], v[1]] for k, v in grouped.items()]
-            print(result)
             return result
 
     @staticmethod
