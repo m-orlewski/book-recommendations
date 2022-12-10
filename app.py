@@ -103,7 +103,42 @@ def like_book_post():
     flash('Dodano polubienie do bazy')
     return redirect(url_for('like_book_get'))
 
+@app.route("/getRecommendation", methods=['GET'])
+def get_recommendation_get():
+    header = "Otrzymaj rekomendację"
+    people = sorted(db.find_people())
 
+    return render_template('get_recommendation.html', people=people, header=header)
+
+@app.route("/getRecommendation", methods=['POST'])
+def get_recommendation_post():
+
+    person = request.form.get('select-person')
+    header = f"Książki rekomendowane dla {person}"
+
+    rec_by_author = [rec[0] for rec in db.find_recommended_books_by_author(person)]
+    rec_by_genre =  [rec[0] for rec in db.find_recommended_books_by_genre(person)]
+
+    unique_rec_by_author = []
+    for book in rec_by_author:
+        if book not in unique_rec_by_author:
+            unique_rec_by_author.append(book)
+        
+    unique_rec_by_genre = []
+    for book in rec_by_genre:
+        if book not in unique_rec_by_genre:
+            unique_rec_by_genre.append(book)
+
+    unique_all = set(unique_rec_by_author.copy())
+    unique_all.update(set(unique_rec_by_genre))
+
+    rec = {}
+    for book in unique_all:
+        rec[book] = rec_by_author.count(book) + rec_by_genre.count(book)
+
+    rec = sorted(rec)
+
+    return render_template('show_recommendations.html', rec=rec, rec_by_author=rec_by_author, rec_by_genre=rec_by_genre, header=header)
 
 if __name__ == '__main__':
     app.run()

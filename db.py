@@ -211,6 +211,53 @@ class DatabaseApp:
                 query=query, exception=exception))
             raise
 
+    def find_recommended_books_by_author(self, person_name):
+        with self.driver.session(database="neo4j") as session:
+            result = session.execute_read(self._find_recommended_books_by_author, person_name)
+            for row in result:
+                print(f'Recommended book: {row[0]} because of author: {row[1]}')
+            return result
+
+    @staticmethod
+    def _find_recommended_books_by_author(tx, person_name):
+        query = (
+            "MATCH (p:Person {name: $person_name})-[:LIKED]->(b)<-[:AUTHOR_OF]-(a)-[:AUTHOR_OF]->(rec) "
+            "WHERE NOT (p)-[:LIKED]->(rec) "
+            "RETURN DISTINCT rec, a "
+            "ORDER BY rec.name"
+        )
+        result = tx.run(query, person_name=person_name)
+        try:
+            return [[row["rec"]["name"], row["a"]["name"]] for row in result]
+        except ServiceUnavailable as exception:
+            logging.error("{query} raised an error: \n {exception}".format(
+                query=query, exception=exception))
+            raise
+
+    def find_recommended_books_by_genre(self, person_name):
+        with self.driver.session(database="neo4j") as session:
+            result = session.execute_read(self._find_recommended_books_by_genre, person_name)
+            for row in result:
+                print(f'Recommended book: {row[0]} because of genre: {row[1]}')
+            return result
+
+    @staticmethod
+    def _find_recommended_books_by_genre(tx, person_name):
+        query = (
+            "MATCH (p:Person {name: $person_name})-[:LIKED]->(b)<-[:GENRE_OF]-(g)-[:GENRE_OF]->(rec) "
+            "WHERE NOT (p)-[:LIKED]->(rec) "
+            "RETURN DISTINCT rec, g "
+            "ORDER BY rec.name"
+        )
+        result = tx.run(query, person_name=person_name)
+        try:
+            return [[row["rec"]["name"], row["g"]["name"]] for row in result]
+        except ServiceUnavailable as exception:
+            logging.error("{query} raised an error: \n {exception}".format(
+                query=query, exception=exception))
+            raise
+
+
 
 if __name__ == "__main__":
     uri = "neo4j+s://0a95c956.databases.neo4j.io"

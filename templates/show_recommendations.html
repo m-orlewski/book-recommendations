@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block header %}
+    {{ header }}
+{% endblock %}
+{% block content %}
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+        <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+    {% if rec %}
+        <caption>Rekomendacje po trafności</caption>
+        <table class="table table-bordered border-success" ><tr style="font-weight: bold; background-color:#ccffcc;">
+        <td>Tytuł</td></tr>
+        {% for row in rec %}
+            <tr>
+                <td>{{row}}</td>
+            </tr>
+        {% endfor %}
+        </table>
+    {% endif %}
+
+    {% if rec_by_author %}
+    <caption class="table-caption">Rekomendacje po autorze</caption>
+        <table class="table table-bordered border-success" ><tr style="font-weight: bold; background-color:#ccffcc;">
+        <td>Tytuł</td></tr>
+        {% for row in rec_by_author %}
+            <tr>
+                <td>{{row}}</td>
+            </tr>
+        {% endfor %}
+        </table>
+    {% endif %}
+
+    {% if rec_by_genre %}
+    <caption>Rekomendacje po gatunku</caption>
+    <table class="table table-bordered border-success" ><tr style="font-weight: bold; background-color:#ccffcc;">
+    <td>Tytuł</td></tr>
+    {% for row in rec_by_genre %}
+        <tr>
+            <td>{{row}}</td>
+        </tr>
+    {% endfor %}
+    </table>
+{% endif %}
+{% endblock %}

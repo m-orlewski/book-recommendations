@@ -22,13 +22,6 @@
                 <option value="{{person}}">{{person}}</option>
             {% endfor %}
         </select>
-    
-        <label for="select-book">Wybierz Książkę</label>
-        <select name="select-book" id="select-book" class="form-select">
-            {% for book in books %}
-                <option value="{{book}}">{{book}}</option>
-            {% endfor %}
-        </select>
     </div>
     <button type="submit" class="btn btn-dark">Dodaj</button>
   </form>
