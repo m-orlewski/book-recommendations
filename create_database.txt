@@ -32,7 +32,6 @@ MERGE (a7)-[:AUTHOR_OF]->(b20)
 MERGE (a7)-[:AUTHOR_OF]->(b21)
 MERGE (a7)-[:AUTHOR_OF]->(b22)
 
-
 MERGE (g1)-[:GENRE_OF]->(b1)
 MERGE (g1)-[:GENRE_OF]->(b2)
 MERGE (g1)-[:GENRE_OF]->(b3)
@@ -60,3 +59,13 @@ MERGE (g2)-[:GENRE_OF]->(b21)
 MERGE (g3)-[:GENRE_OF]->(b21)
 MERGE (g2)-[:GENRE_OF]->(b22)
 MERGE (g3)-[:GENRE_OF]->(b22)
+
+MERGE (p1)-[:LIKED]->(b1)
+MERGE (p1)-[:LIKED]->(b2)
+MERGE (p1)-[:LIKED]->(b3)
+MERGE (p1)-[:LIKED]->(b4)
+MERGE (p2)-[:LIKED]->(b13)
+MERGE (p2)-[:LIKED]->(b14)
+MERGE (p3)-[:LIKED]->(b8)
+MERGE (p3)-[:LIKED]->(b17)
+
