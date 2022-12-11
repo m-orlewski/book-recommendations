@@ -136,7 +136,7 @@ def get_recommendation_post():
     for book in unique_all:
         rec[book] = rec_by_author.count(book) + rec_by_genre.count(book)
 
-    rec = sorted(rec)
+    rec = [k for k, v in sorted(rec.items(), key=lambda item: item[1], reverse=True)]
 
     return render_template('show_recommendations.html', rec=rec, rec_by_author=rec_by_author, rec_by_genre=rec_by_genre, header=header)
 
